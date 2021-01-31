@@ -1,3 +1,4 @@
+import java.awt.desktop.OpenURIEvent;
 import java.util.Scanner;
 
 public class Main {
@@ -18,11 +19,55 @@ public class Main {
     static short nbEnnemisTues = 0;
     static boolean bouclierActif = true;
 
+
     // exercice 3
     public static void main(String[] args) {
         initPersonnage();
-        short nbPtsEnnemi = attaqueJoueur((short)10);
-        System.out.println("L'ennemi a " + nbPtsEnnemi + " points de vie restant");
+        boolean moto = hasard(0.5);
+        short nbEnnemi[] = initEnnemis();
+        short voiture = nbEnnemi[0];
+        System.out.println("combat avec un ennemi possédant " + Util.color((voiture), Color.PURPLE) + " points de vie.");
+        afficherPersonnage();
+        System.out.println(" vs ennemi " + Util.color((voiture), Color.PURPLE));
+        short bmw = attaque(voiture, moto);
+        if (moto) {
+            moto = false;
+        }
+        else {
+            moto = true;
+        }
+        short audi = attaque(voiture, moto);
+        afficherPersonnage();
+        if (moto) {
+            System.out.println(" vs ennemi " + Util.color((audi), Color.PURPLE));
+        }
+        else{
+            System.out.println(" vs ennemi " + Util.color((bmw), Color.PURPLE ));
+        }
+
+        if (audi < 0 || bmw < 0){
+            short i = 0;
+            i++;
+            System.out.println("l'ennemi est mort ! Au suivant !");
+            System.out.println("Régénération du bouclier : +10");
+            ptsBouclier += REGENERATION_BOUCLIER_PAR_TOUR;
+            if (ptsBouclier < 25) {
+                ptsBouclier = 25;
+            }
+            System.out.println("Saisisser S pour passer au combat suivant ou n'importe quoi d'autre pour fuir ...");
+            Scanner scannertest = new Scanner(System.in);
+            String lettre = scannertest.nextLine();
+            if (lettre.equals("S")){
+                    System.out.println("Ok ! Nous passons au combat suivant !");
+                }else {
+                System.out.println("Courage fuyons !");
+                System.out.println("Vous avez tué " + i + " ennemis mais vous êtes partis lâchement avant la fin ...");
+                System.exit(0);
+                }
+
+
+        }
+
     }
 
     static void initPersonnage() {
@@ -32,7 +77,6 @@ public class Main {
         ptsDeVie = MAX_PTS_VIE;
         ptsBouclier = PTS_BOUCLIER;
         System.out.println("OK " + Util.color(nomPersonnage, Color.GREEN) + " ! C'est parti !");
-        scanner.close();
     }
 
     // exercice 4
@@ -62,8 +106,60 @@ public class Main {
         }
         System.out.print(")");
     }
-}
 
+    static void attaqueEnnemi(){
+    if(ptsDeVie <= 0) {
+        return;
+    }
+
+    short dommages = nombreAuHasard(MAX_ATTAQUE_ENNEMI);
+    System.out.print("L'" + Util.color("ennemi", Color.YELLOW) + " attaque " +
+            Util.color(nomPersonnage, Color.GREEN) +" ! ");
+    System.out.print("Il lui fait " + dommages + " points de dommages ! ");
+    if(bouclierActif && ptsBouclier >0) {
+        short dommagesBouclier = (short) Math.min(ptsBouclier, dommages);
+        System.out.print("Le bouclier perd " + Util.color(dommagesBouclier, Color.BLUE) + " points. ");
+        ptsBouclier -= dommagesBouclier;
+        dommages -= dommagesBouclier;
+    }
+
+    if(dommages > 0){
+        ptsDeVie -= dommages;
+        System.out.print(Util.color(nomPersonnage, Color.GREEN)+ " perd " +
+                Util.color(dommages, Color.RED) + " points de vie ! ");
+    }
+        System.out.println();
+    }
+
+    static short attaque(short ennemi, boolean joueurAttaque){
+        if(ennemi <= 0 || ptsDeVie <= 0){
+            return ennemi;
+        }
+        if(joueurAttaque){
+            ennemi = attaqueJoueur(ennemi);
+        }
+        else {
+            attaqueEnnemi();
+        }
+        return ennemi;
+
+    }
+
+    static short[] initEnnemis(){
+        System.out.println("Combien souhaitez-vous combattre d'ennemis ?");
+        Scanner scanner = new Scanner(System.in);
+        short nbEnnemis = scanner.nextShort();
+        System.out.println("Génération des ennemis...");
+        short[] ennemis = new short[nbEnnemis];
+        for (short i = 0; i < nbEnnemis; i++){
+            ennemis[i] = nombreAuHasard(MAX_VIE_ENNEMI);
+            System.out.println("Ennemi numéro " + (i + 1) + " : " + Util.color(ennemis[i], Color.PURPLE));
+        }
+        return ennemis;
+    }
+
+
+}
 
 
 
